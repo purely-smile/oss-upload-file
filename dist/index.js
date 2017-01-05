@@ -8,36 +8,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 class configType {
 }
-/**
- * input 为需要监听上传的input元素
- * mesFn 提示消息回调，默认window.alert
- * mode  图片格式，默认上传image格式图片
- * bucket oss 的bucket
- * region oss 的region
- * progressFn 上传进度回调
- * uploadSuccess 上传成功回调
- * stsConfig oss 临时授权服务器返回数据
- * prefix 图片名称前缀，默认''
- *
- *
- * @param {configType} {
- *     input,
- *     mesFn = window.alert,
- *     mode = 'image',
- *     bucket,
- *     region,
- *     progressFn,
- *     uploadSuccess,
- *     stsConfig,
- *     prefix
- * }
- */
-module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket, region, progressFn, uploadSuccess, stsConfig, prefix = '' }) {
-    let moment = require('moment');
+module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket, region = 'http://oss-cn-beijing.aliyuncs.com', progressFn, uploadSuccess, stsConfig, prefix = '', watch = true, debug = false }) {
     if (!input) {
         throw new Error('请配置input元素');
     }
-    input.addEventListener('change', () => {
+    if (watch) {
+        input.addEventListener('change', checkType);
+    }
+    else {
+        checkType();
+    }
+    if (!window.VODUpload) {
+        console.log('https://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/cn/vod/0.0.4/assets/sdk/js-sdk.zip?spm=5176.doc48501.2.1.EUh9xZ&file=js-sdk.zip');
+        throw new Error('请添加oss依赖文件');
+    }
+    /**
+     * 检查上传类型
+     *
+     * @returns
+     */
+    function checkType() {
         let name = input.name || 'file';
         let formData = new FormData();
         //vuex 保存的文件名称
@@ -45,11 +35,9 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
         if (!file)
             return;
         let { type, size } = file;
-        let bucket;
         size = size / 1024 / 1024;
         if (mode === 'image') {
             type = type.split('/')[1];
-            bucket = 'naertuires';
             let validType = ['jpg', 'png', 'jpeg'];
             if (size > 5) {
                 return mesFn('请上传5M以内的图片');
@@ -59,7 +47,6 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
             }
         }
         else if (mode === 'video') {
-            bucket = 'nrtvideoin';
             if (size > 500) {
                 return mesFn('不能选择大于500M的视频');
             }
@@ -71,7 +58,7 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
             throw new Error('未知上传格式');
         }
         uploadFile(file, mesFn);
-    });
+    }
     /**
      * file 为input里选择的文件
      * mesFn 为回调消息提示函数
@@ -80,12 +67,13 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
      */
     function uploadFile(file, mesFn) {
         let { name: filename } = file;
-        let now = moment().format('YYYY-MM-DD-HH-mm-ss-');
+        let date = new Date();
+        let now = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}-${date.getMinutes()}`;
         let newFileName = now + filename;
         var uploader = new window.VODUpload({
             // 文件上传失败
             'onUploadFailed': function (fileName, code, message) {
-                console.log("onUploadFailed: " + fileName + code + "," + message);
+                log("上传失败: " + fileName + code + "," + message);
                 mesFn('上传失败，请重试！');
             },
             // 文件上传完成
@@ -94,7 +82,7 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
                     name,
                     fileName: prefix + newFileName
                 };
-                console.log(newFileName);
+                log('上传成功，文件名：', newFileName);
                 uploadSuccess(data);
                 mesFn('上传成功');
             },
@@ -102,11 +90,11 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
             'onUploadProgress': function (fileName, totalSize, uploadedSize) {
                 let progress = (uploadedSize * 100 / totalSize).toFixed(2) + '%';
                 progressFn(progress);
-                // console.log(progress);
+                log('上传进度：', progress);
             },
             // token超时
             'onUploadTokenExpired': function (callback) {
-                console.log("onUploadTokenExpired");
+                log('上传超时', "onUploadTokenExpired");
                 mesFn('上传请求超时');
             }
         });
@@ -115,9 +103,19 @@ module.exports = function ({ input, mesFn = window.alert, mode = 'image', bucket
                 let { AccessKeyId, AccessKeySecret, Expiration, SecurityToken } = stsConfig;
                 uploader.init(AccessKeyId, AccessKeySecret, SecurityToken, Expiration);
                 uploader.addFile(file, region, bucket, newFileName, {});
-                // console.log(uploader.listFiles());
+                log('上传文件列表', uploader.listFiles());
                 uploader.startUpload();
             });
         }();
+    }
+    /**
+     * 打印日志
+     *
+     * @param {any} mes
+     */
+    function log(...mes) {
+        if (debug) {
+            console.log([...mes]);
+        }
     }
 };

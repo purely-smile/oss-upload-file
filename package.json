@@ -1,6 +1,6 @@
 {
     "name": "oss-upload-file",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "上传文件到阿里云oss服务器接口的封装",
     "main": "./dist/index.js",
     "scripts": {
@@ -23,7 +23,5 @@
     "devDependencies": {
         "@types/node": "^6.0.56"
     },
-    "dependencies": {
-        "moment": "^2.17.1"
-    }
+    "dependencies": {}
 }
