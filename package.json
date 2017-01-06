@@ -1,6 +1,6 @@
 {
     "name": "oss-upload-file",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "上传文件到阿里云oss服务器接口的封装",
     "main": "./dist/index.js",
     "scripts": {

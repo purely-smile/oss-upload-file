@@ -1,17 +1,4 @@
-class configType {
-    input: HTMLInputElement;
-    mesFn: any;
-    mode: string;
-    bucket: string;
-    region: string;
-    progressFn: any;
-    uploadSuccess: any;
-    stsConfig: any;
-    prefix: string;
-    watch: boolean;
-    debug: boolean;
-}
-module.exports = function ({
+module.exports = function ossFileUpload({
     input,
     mesFn = window.alert,
     mode = 'image',
@@ -23,7 +10,7 @@ module.exports = function ({
     prefix = '',
     watch = true,
     debug = false
-}: configType) {
+}) {
     if (!input) {
         throw new Error('请配置input元素');
     }
