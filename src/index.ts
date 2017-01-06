@@ -108,24 +108,22 @@ module.exports = function ossFileUpload({
             }
         });
 
-        !async function () {
-            let {
-                AccessKeyId,
-                AccessKeySecret,
-                Expiration,
-                SecurityToken
-            } = stsConfig;
-            uploader.init(AccessKeyId, AccessKeySecret, SecurityToken, Expiration);
+        let {
+            AccessKeyId,
+            AccessKeySecret,
+            Expiration,
+            SecurityToken
+        } = stsConfig;
+        uploader.init(AccessKeyId, AccessKeySecret, SecurityToken, Expiration);
 
-            uploader.addFile(file,
-                region,
-                bucket,
-                newFileName,
-                {}
-            )
-            log('上传文件列表', uploader.listFiles());
-            uploader.startUpload();
-        } ();
+        uploader.addFile(file,
+            region,
+            bucket,
+            newFileName,
+            {}
+        )
+        log('上传文件列表', uploader.listFiles());
+        uploader.startUpload();
     }
 
     /**
