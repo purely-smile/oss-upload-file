@@ -75,8 +75,8 @@ module.exports = function ossFileUpload({
         } = file;
         let date = new Date();
         let now = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${date.getHours()}-${date.getMinutes()}-${date.getMinutes()}`;
-
-        let newFileName = now + Math.floor(Math.random() * 1000);
+        let dot = filename.split('.').pop();
+        let newFileName = now + Math.floor(Math.random() * 1000) + '.' + dot;
 
         var uploader = new (<any>window).VODUpload({
             // 文件上传失败

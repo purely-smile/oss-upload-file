@@ -48,7 +48,8 @@ module.exports = function ossFileUpload(_a) {
         var filename = file.name;
         var date = new Date();
         var now = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getHours() + "-" + date.getMinutes() + "-" + date.getMinutes();
-        var newFileName = now + filename;
+        var dot = filename.split('.').pop();
+        var newFileName = now + Math.floor(Math.random() * 1000) + '.' + dot;
         var uploader = new window.VODUpload({
             'onUploadFailed': function (fileName, code, message) {
                 log("上传失败: " + fileName + code + "," + message);
