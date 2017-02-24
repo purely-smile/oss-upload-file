@@ -40,6 +40,10 @@ export function ossFileUpload({
     }
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        lib.uploadFile(file, i);
+        let {progress} = file;
+        // 过滤所有含有进度
+        if (!progress) {
+            lib.uploadFile(file, i);
+        }
     }
 }
